@@ -1,8 +1,10 @@
 *** Settings ***
 Suite Setup
 Suite Teardown
+Test Teardown     run keyword if test failed    take screenshot    ${TEST_NAME}
 Resource          helper_kw.robot
 Resource          elements.robot
+Library           Screenshot
 
 *** Test Cases ***
 Search feature functionality

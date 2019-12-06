@@ -1,14 +1,11 @@
 from pywinauto import application
 from pywinauto.timings import wait_until as pywait
 from robot.api import logger as robologger
-import time
 import pywinauto
 import psutil
+import timeit
 
 
-# TODO: Definire de actiuni de baza
-# TODO: Refactor methods by atomzing the actions themselves even more
-# TODO: Helper Classes
 # TODO: Test teardown -> la orice fail sa faca screenshot (ROBOT)
 # TODO: Future: TimeIt => pentru benchamarking
 
@@ -54,7 +51,6 @@ class SpotifyDesktopApp:
             self.app.top_window().wait('visible', timeout=20, retry_interval=1)
         except RuntimeError:
             robologger.console("Application is already running. Window handle ready.")
-
 
     def search_for_something(self, search_for):
         """
@@ -124,18 +120,15 @@ class SpotifyDesktopApp:
                 err) + "> was thrown.")
             raise IndexError("List index out of range. Not all elements were found.")
         finally:
-            robologger.console(f'\nThese are the ui elements that were found: {ui_elements_present}')
             return ui_elements_present
 
-    def read_songs_from_playlist(self, playlist_nr):
+    def read_songs_from_playlist(self, playlist):
         """
-        :param playlist_nr: Order number of the playlist within the playlist panel
+        :param playlist: Name of the playlist that will have it's songs read
         :return: List of songs of the songs from the playlist.
         """
-        # self.connect()
         self.window_handle.child_window(auto_id='iframe-buddy-list').wait('visible', timeout=10)
-        playlist_pane = self.window_handle.child_window(auto_id='view-navigation-bar').children()[2]
-        playlist_pane.children()[int(playlist_nr) - 1].click_input()
+        self.find_playlist(playlist=playlist).click_input()
         self.window_handle.child_window(control_type="Table", found_index=0).wait("visible")
         # indexes below:
         # 2: Song name
@@ -149,7 +142,7 @@ class SpotifyDesktopApp:
         robologger.console(f"All songs in the list are: {songs_list} \n")
         return songs_list
 
-    def move_song_between_playlists(self, source_playlist, target_playlist, artist, song_name):
+    def move_song_between_playlists(self, source_playlist, target_playlist, artist_name, song_name):
         """
         :param: source_playlist: The playlist from which you want to drag the song. Order number in the playlist.
         :param: target_playlist: The playlist into which you want to drag the song. Order number in the playlist.
@@ -157,21 +150,26 @@ class SpotifyDesktopApp:
         :param: artist: Name of the artist that performs the song entered in song_name
         :return: If the song is successfully moved between playlists, returns true.
         """
-        # TODO: Remove looping and rewrite with the new select_playlist method.
+        self.click_homepage()
         self.window_handle.child_window(auto_id="view-content").wait("ready", timeout=3)
-        t_playlist = self.window_handle.child_window(title="Your Library and Playlists").children()[2].children()[
-            int(target_playlist) - 1]
+        t_playlist = self.find_playlist(target_playlist)
         robologger.console("Target playlist found and selected.")
-        self.click_on_playlist(source_playlist)
+        s_playlist = self.find_playlist(source_playlist)
         robologger.console("Source playlist found and selected.")
+        s_playlist.click_input()
+        robologger.console("Source playlist clicked.")
         self.window_handle.child_window(title="Filter", control_type="Edit").wait("ready", timeout=4)
-        playlist_pane = self.window_handle.child_window(auto_id="view-content", control_type="Group")
-        songs_in_pl = playlist_pane.children()[1].children()[0].children()[6].children(control_type="Custom")
-        for i in range(1, len(songs_in_pl)):
-            if songs_in_pl[i].children()[3].window_text() == artist and songs_in_pl[i].children()[2].window_text() == song_name:
-                songs_in_pl[i].children()[2].drag_mouse_input(dst=t_playlist)
-                robologger.console("Drag and drop operation completed succsesfully")
-                return True
+        robologger.console("Playlist pane ready.")
+        song = self.window_handle.child_window(auto_id="view-content", control_type="Group").child_window(title=song_name, found_index=0)
+        artist = self.window_handle.child_window(auto_id="view-content", control_type="Group").child_window(title=artist_name, found_index=0)
+        if song.window_text() == song_name and artist.window_text() == artist_name:
+            song.draw_outline()
+            t_playlist.draw_outline()
+            song.drag_mouse_input(dst=t_playlist.children()[0])
+            robologger.console(f' The drag and drop operation was successful. \n {song_name} was dragged from {source_playlist} playlist to the playlist named {target_playlist}.')
+            return True
+        else:
+            robologger.console("Song or artist not in the source playlist!")
 
     def remove_song_from_playlist_context_menu(self, playlist, song_name):
         """
@@ -197,17 +195,17 @@ class SpotifyDesktopApp:
         :param direction: 1: Increase in volume, -1: Decrease in volume
         :return: Returns nothing.
         """
-        # self.connect()
         self.window_handle.child_window(title="Mute").wait("visible", timeout=7)
         for i in range(0, int(nr_of_increments)):
             self.window_handle.child_window(title="Mute").move_mouse_input(coords=(50, 20), absolute=False).wheel_mouse_input(coords=(50, 20), wheel_dist=int(direction))
 
-    def toggles(self):
-        # self.connect()
+    def toggles(self, toggle_button_description):
+        """
+        :return: A tuple: Current state: the state before any action was executed on the toggle button. Final state: the state of the toggle button after the action.
+        """
         # Click menu
-        # main_menu = self.window_handle.children()[2].children()[0].children()[4].children()[6]
         self.window_handle.wait('visible', timeout=5)
-        settings_menu_expand_button = self.window_handle.child_window(auto_id='profile-menu-toggle')
+        settings_menu_expand_button = self.settings_menu()
         try:
             settings_menu_expand_button.wait('visible', timeout=5)
             settings_menu_expand_button.click_input()
@@ -222,14 +220,19 @@ class SpotifyDesktopApp:
         finally:
             settings_menu_item.draw_outline()
             settings_menu_item.click_input()
-        explicit_content_toggle = self.window_handle.child_window(control_type='CheckBox', title='Allow playback of explicit-rated content.')
+        # explicit_content_toggle = self.window_handle.child_window(control_type='CheckBox', title='Allow playback of explicit-rated content.')
+        explicit_content_toggle = self.toggle_button(toggle_button_description)
         explicit_content_toggle.wait('visible', timeout=5)
         explicit_content_toggle.draw_outline()
         current_state = explicit_content_toggle.get_toggle_state()
-        robologger.console(f'Initial state is {current_state}')
         explicit_content_toggle.toggle()
         final_state = explicit_content_toggle.get_toggle_state()
-        robologger.console(f'Final state is {final_state}')
+        return current_state, final_state
+        # current_state = explicit_content_toggle.get_toggle_state()
+        # robologger.console(f'Initial state is {current_state}')
+        # explicit_content_toggle.toggle()
+        # final_state = explicit_content_toggle.get_toggle_state()
+        # robologger.console(f'Final state is {final_state}')
 
     def close_application(self):
         self.window_handle.close()
@@ -245,13 +248,73 @@ class SpotifyDesktopApp:
         else:
             return pl
 
-# SpotifyDesktopApp().search_for_something("Strangler")
-# print(SpotifyDesktopApp().read_songs_from_album(1))
-# print(SpotifyDesktopApp().ui_test_bottom_console())
-# print(SpotifyDesktopApp().move_song_between_playlists(1, 2, "Soilwork", "Distortion Sleep"))
-print(SpotifyDesktopApp().remove_song_from_playlist_context_menu("extra_heavy_metal", "Strangler"))
-# SpotifyDesktopApp().toggles()
-# SpotifyDesktopApp().find_playlist('extra_heavy_metal').click_input()
-# print(SpotifyDesktopApp().window_handle)
-# SpotifyDesktopApp().check_volume_mouse_scroll(3)
-# SpotifyDesktopApp().move_song_between_playlists2()
+    def play_button(self):
+        """
+        :returns: Play button object
+        """
+        self.window_handle.child_window(auto_id='player-button-play').wait('visible', 10)
+        return self.window_handle.child_window(auto_id='player-button-play')
+
+    def mute_button(self):
+        """
+        :return: Mute button object
+        """
+        return self.window_handle.child_window(title="Mute")
+
+    def settings_menu(self):
+        """
+        :return: Settings menu object.
+        """
+        return self.window_handle.child_window(auto_id='profile-menu-toggle')
+
+    def toggle_button(self, toggle_name):
+        """
+        :param toggle_name: Name of the toggle option
+        :return: Toggle button for the
+        """
+        try:
+            return self.window_handle.child_window(control_type='CheckBox', title=toggle_name)
+        except pywinauto.ElementNotFoundError:
+            robologger.console("Element was not found.")
+
+    def check_toggle(self, toggle_result):
+        """
+        :param toggle_result: uses the SpotifyDesktopApp().toggles() as input
+        :return: Returns True if the toggle has worked, else returns False
+        """
+        if toggle_result == (0, 0) or toggle_result == (1, 1):
+            robologger.console('An error has occurred. Toggling has not been achieved.')
+            return False
+        else:
+            robologger.console("The toggle option has worked.")
+            return True
+
+    def player_ui_control(self, ui_elements):
+        if len(ui_elements) is 8:
+            robologger.console("All the elements are present")
+            print(ui_elements)
+            return True
+        else:
+            robologger.console("There are less elements than expected. Test has failed.")
+
+
+if __name__ == '__main__':
+
+    result = SpotifyDesktopApp().toggles("Allow playback of explicit-rated content.")
+    SpotifyDesktopApp().check_toggle(result)
+    # SpotifyDesktopApp().toggle_button("Make my new playlists public").click_input()
+    # print(SpotifyDesktopApp().read_songs_from_playlist('Super_jazz'))
+    # print(SpotifyDesktopApp().ui_test_bottom_console())
+    # print(SpotifyDesktopApp().move_song_between_playlists
+    #     (
+    #     source_playlist='extra_heavy_metal',
+    #     target_playlist='Super_jazz',
+    #     artist_name='Soilwork',
+    #     song_name='Stabbing the Drama'
+    #     ))
+
+    # print(SpotifyDesktopApp().remove_song_from_playlist_context_menu("extra_heavy_metal", "Strangler"))
+    # SpotifyDesktopApp().toggles()
+    # SpotifyDesktopApp().find_playlist('extra_heavy_metal').click_input()
+    # print(SpotifyDesktopApp().window_handle
+    pass
