@@ -3,8 +3,6 @@ from pywinauto.timings import wait_until as pywait
 from robot.api import logger as robologger
 import pywinauto
 import psutil
-from dateutil.parser import parse
-import time
 
 # TODO: Separate class for helpers
 # TODO: Future: TimeIt => pentru benchamarking
@@ -192,17 +190,17 @@ class SpotifyDesktopApp:
             except pywinauto.findwindows.ElementNotFoundError:
                 pass
 
-    def check_toggles_functionality(self, menu_item_name, toggle_button_name):
-        self.click_menu_item(menu_item_name)
-        current_state = self.toggle_button(toggle_button_name).get_toggle_state()
-        self.toggles(toggle_button_name)
-        final_state = self.toggle_button(toggle_button_name).get_toggle_state()
-        if current_state != final_state:
-            robologger.console(f" Current state was {current_state} \n Final state is {final_state}.")
-            return True
-        else:
-            robologger.warn("The toggle function did not function!")
-            return False
+    # def check_toggles_functionality(self, menu_item_name, toggle_button_name):
+    #     self.click_menu_item(menu_item_name)
+    #     current_state = self.toggle_button(toggle_button_name).get_toggle_state()
+    #     self.toggles(toggle_button_name)
+    #     final_state = self.toggle_button(toggle_button_name).get_toggle_state()
+    #     if current_state != final_state:
+    #         robologger.console(f" Current state was {current_state} \n Final state is {final_state}.")
+    #         return True
+    #     else:
+    #         robologger.warn("The toggle function did not function!")
+    #         return False
 
     def close_application(self):
         self.window_handle.close()
@@ -266,15 +264,15 @@ class SpotifyDesktopApp:
         """
         return self.window_handle.child_window(auto_id='profile-menu-toggle')
 
-    def toggle_button(self, toggle_name):
-        """
-        :param toggle_name: Name of the toggle option
-        :return: Toggle button object
-        """
-        try:
-            return self.window_handle.child_window(control_type='CheckBox', title=toggle_name)
-        except pywinauto.ElementNotFoundError:
-            robologger.console("Element was not found.")
+    # def toggle_button(self, toggle_name):
+    #     """
+    #     :param toggle_name: Name of the toggle option
+    #     :return: Toggle button object
+    #     """
+    #     try:
+    #         return self.window_handle.child_window(control_type='CheckBox', title=toggle_name)
+    #     except pywinauto.ElementNotFoundError:
+    #         robologger.console("Element was not found.")
 
     def search_field(self):
         """
@@ -357,108 +355,108 @@ class SpotifyDesktopApp:
         except pywinauto.findwindows.ElementNotFoundError:
             return False
 
-    def check_play_song_functionality(self):
-        initial_time = parse(self.time_elapsed().window_text()).time()
-        self.play_song(2)
-        if initial_time < parse(self.time_elapsed().window_text()).time():
-            robologger.console("The song has successfully been played.")
-            return True
-        else:
-            robologger.error("The song has not been played.")
-            return False
+    # def check_play_song_functionality(self):
+    #     initial_time = parse(self.time_elapsed().window_text()).time()
+    #     self.play_song(2)
+    #     if initial_time < parse(self.time_elapsed().window_text()).time():
+    #         robologger.console("The song has successfully been played.")
+    #         return True
+    #     else:
+    #         robologger.error("The song has not been played.")
+    #         return False
 
-    def dt_player_ui_test(self):
-        error_flag = False
-        try:
-            assert (self.song_length()), 'Song length not found.'
-        except AssertionError:
-            robologger.error("The song length element was not found")
-            error_flag = True
-        try:
-            assert (self.shuffle_button()), 'Shuffle button not found.'
-        except AssertionError:
-            robologger.error("The shuffle button element was not found")
-            error_flag = True
-        try:
-            assert (self.mute_button()), 'Mute button not found.'
-        except AssertionError:
-            robologger.error("The mute button element was not found")
-            error_flag = True
-        try:
-            assert (self.play_button()), 'Play button not found.'
-        except AssertionError:
-            robologger.error("The play button element was not found")
-            error_flag = True
-        try:
-            assert (self.previous_button()), 'Previous song button not found.'
-        except AssertionError:
-            robologger.error("The Previous song button element was not found")
-            error_flag = True
-        try:
-            assert (self.next_button()), 'Next song button not found.'
-        except AssertionError:
-            robologger.error("The Next song button element was not found")
-            error_flag = True
-        try:
-            assert (self.currently_playing()), 'Currently playing panel is not found.'
-        except AssertionError:
-            robologger.error("The Currently playing button element was not found")
-            error_flag = True
-        try:
-            assert (self.repeat_button()), 'Repeat button is not found.'
-        except AssertionError:
-            robologger.error("The repeat button element was not found")
-            error_flag = True
-        try:
-            assert (self.time_elapsed()), 'Time elapsed not found.'
-        except AssertionError:
-            robologger.error("The time elapsed element was not found")
-            error_flag = True
+    # def dt_player_ui_test(self):
+    #     error_flag = False
+    #     try:
+    #         assert (self.song_length()), 'Song length not found.'
+    #     except AssertionError:
+    #         robologger.error("The song length element was not found")
+    #         error_flag = True
+    #     try:
+    #         assert (self.shuffle_button()), 'Shuffle button not found.'
+    #     except AssertionError:
+    #         robologger.error("The shuffle button element was not found")
+    #         error_flag = True
+    #     try:
+    #         assert (self.mute_button()), 'Mute button not found.'
+    #     except AssertionError:
+    #         robologger.error("The mute button element was not found")
+    #         error_flag = True
+    #     try:
+    #         assert (self.play_button()), 'Play button not found.'
+    #     except AssertionError:
+    #         robologger.error("The play button element was not found")
+    #         error_flag = True
+    #     try:
+    #         assert (self.previous_button()), 'Previous song button not found.'
+    #     except AssertionError:
+    #         robologger.error("The Previous song button element was not found")
+    #         error_flag = True
+    #     try:
+    #         assert (self.next_button()), 'Next song button not found.'
+    #     except AssertionError:
+    #         robologger.error("The Next song button element was not found")
+    #         error_flag = True
+    #     try:
+    #         assert (self.currently_playing()), 'Currently playing panel is not found.'
+    #     except AssertionError:
+    #         robologger.error("The Currently playing button element was not found")
+    #         error_flag = True
+    #     try:
+    #         assert (self.repeat_button()), 'Repeat button is not found.'
+    #     except AssertionError:
+    #         robologger.error("The repeat button element was not found")
+    #         error_flag = True
+    #     try:
+    #         assert (self.time_elapsed()), 'Time elapsed not found.'
+    #     except AssertionError:
+    #         robologger.error("The time elapsed element was not found")
+    #         error_flag = True
+    #
+    #     if error_flag is False:
+    #         robologger.console("All ui elements are present.")
+    #     else:
+    #         return False
 
-        if error_flag is False:
-            robologger.console("All ui elements are present.")
-        else:
-            return False
-
-    def play_song(self, time_to_play):
-        """
-        :param time_to_play: how long the song should be played for
-        :return:
-        """
-        self.play_button().wait('visible', timeout=5)
-        self.play_button().click_input()
-        time.sleep(time_to_play)
-        self.play_button().click_input()
+    # def play_song(self, time_to_play):
+    #     """
+    #     :param time_to_play: how long the song should be played for
+    #     :return:
+    #     """
+    #     self.play_button().wait('visible', timeout=5)
+    #     self.play_button().click_input()
+    #     time.sleep(time_to_play)
+    #     self.play_button().click_input()
 
 
-if __name__ == '__main__':
-
-    # SpotifyDesktopApp().dt_player_ui_test()
-    # print(SpotifyDesktopApp().currently_playing().window_text())
-    s = SpotifyDesktopApp()
-    # s.click_menu_item("Settings")
-    s.check_toggles_functionality("Settings", "Allow playback of explicit-rated content.")
-    # s.check_play_song_functionality()
-    # play_song_result = s.play_song()
-    # validation_result = s.check_play_song_functionality(play_song_result)
-    # print(validation_result)
-    # print(SpotifyDesktopApp().check_play_song_functionality(SpotifyDesktopApp().play_song()))
-    # print(SpotifyDesktopApp().play_song())
-    # result = SpotifyDesktopApp().toggles("Allow playback of explicit-rated content.")
-    # SpotifyDesktopApp().check_toggle(result)
-    # SpotifyDesktopApp().toggle_button("Make my new playlists public").click_input()
-    # print(SpotifyDesktopApp().read_songs_from_playlist('Super_jazz'))
-    # print(SpotifyDesktopApp().ui_test_bottom_console())
-    # print(SpotifyDesktopApp().move_song_between_playlists
-    #     (
-    #     source_playlist='extra_heavy_metal',
-    #     target_playlist='Super_jazz',
-    #     artist_name='Soilwork',
-    #     song_name='Stabbing the Drama'
-    #     ))
-
-    # print(SpotifyDesktopApp().remove_song_from_playlist_context_menu("extra_heavy_metal", "Strangler"))
-    # SpotifyDesktopApp().toggles()
-    # SpotifyDesktopApp().find_playlist('extra_heavy_metal').click_input()
-    # print(SpotifyDesktopApp().window_handle
-    pass
+# if __name__ == '__main__':
+#
+#     # SpotifyDesktopApp().dt_player_ui_test()
+#     # print(SpotifyDesktopApp().currently_playing().window_text())
+#     s = SpotifyDesktopApp()
+#     # s.click_menu_item("Settings")
+#     s.check_toggles_functionality("Settings", "Allow playback of explicit-rated content.")
+#     # s.check_play_song_functionality()
+#     # play_song_result = s.play_song()
+#     # validation_result = s.check_play_song_functionality(play_song_result)
+#     # print(validation_result)
+#     # print(SpotifyDesktopApp().check_play_song_functionality(SpotifyDesktopApp().play_song()))
+#     # print(SpotifyDesktopApp().play_song())
+#     # result = SpotifyDesktopApp().toggles("Allow playback of explicit-rated content.")
+#     # SpotifyDesktopApp().check_toggle(result)
+#     # SpotifyDesktopApp().toggle_button("Make my new playlists public").click_input()
+#     # print(SpotifyDesktopApp().read_songs_from_playlist('Super_jazz'))
+#     # print(SpotifyDesktopApp().ui_test_bottom_console())
+#     # print(SpotifyDesktopApp().move_song_between_playlists
+#     #     (
+#     #     source_playlist='extra_heavy_metal',
+#     #     target_playlist='Super_jazz',
+#     #     artist_name='Soilwork',
+#     #     song_name='Stabbing the Drama'
+#     #     ))
+#
+#     # print(SpotifyDesktopApp().remove_song_from_playlist_context_menu("extra_heavy_metal", "Strangler"))
+#     # SpotifyDesktopApp().toggles()
+#     # SpotifyDesktopApp().find_playlist('extra_heavy_metal').click_input()
+#     # print(SpotifyDesktopApp().window_handle
+#     pass

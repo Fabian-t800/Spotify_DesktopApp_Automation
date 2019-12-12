@@ -1,5 +1,6 @@
 *** Settings ***
 Library           ../pywin_tests/SpotifyDesktopApp.py
+Library           ../pywin_tests/HelperClassSpotifyDesktopApp.py
 
 *** Keywords ***
 Search for an item
@@ -10,7 +11,7 @@ Close Spotify desktop app
     close_application
 
 Change volume
-    check_volume_mouse_scroll    ${volume_amount}    ${volume_direction}
+    volume_mouse_scroll    ${volume_amount}    ${volume_direction}
 
 Read songs from a specified playlist
     read_songs_from_playlist    ${playlist_nr_read_songs}

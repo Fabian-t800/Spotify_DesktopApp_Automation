@@ -99,7 +99,7 @@ class HelperClassSpotifyDesktopApp:
         self.sda.rc_context_menu("Remove from this Playlist").click_input()
         return "Action was completed successfully!"
 
-    def check_volume_mouse_scroll(self, nr_of_increments, direction=1):
+    def volume_mouse_scroll(self, nr_of_increments, direction=1):
         """
         :param nr_of_increments: 1 increment means 10% change in volume
         :param direction: 1: Increase in volume, -1: Decrease in volume
@@ -110,6 +110,10 @@ class HelperClassSpotifyDesktopApp:
             self.window_handle.child_window(title="Mute").move_mouse_input(coords=(50, 20), absolute=False).wheel_mouse_input(coords=(50, 20), wheel_dist=int(direction))
 
     def toggles(self, toggle_button_description):
+        """
+        :param toggle_button_description: The name of the toggle button
+        :return:
+        """
         toggle_button = self.sda.toggle_button(toggle_button_description)
         toggle_button.wait('visible', timeout=5)
         toggle_button.draw_outline()
@@ -221,13 +225,13 @@ class HelperClassSpotifyDesktopApp:
         self.sda.play_button().click_input()
 
 
-if __name__ == '__main__':
-    p = HelperClassSpotifyDesktopApp()
-    # Passed tests:
-    # p.search_for_something("Strangler")
-    # p.check_toggles_functionality("Settings", "Allow playback of explicit-rated content.")
-    p.read_songs_from_playlist("Workout_songs")
-    # p.dt_player_ui_test()
-    # p.check_play_song_functionality()
-    # p.remove_song_from_playlist_context_menu("Super_jazz", "Summer Love")
-    # p.move_song_between_playlists(source_playlist="extra_heavy_metal", target_playlist="Super_jazz", artist_name="Soilwork", song_name="Strangler")
+# if __name__ == '__main__':
+#     p = HelperClassSpotifyDesktopApp()
+#     # Passed tests:
+#     # p.search_for_something("Strangler")
+#     # p.check_toggles_functionality("Settings", "Allow playback of explicit-rated content.")
+#     # p.read_songs_from_playlist("Workout_songs")
+#     # p.dt_player_ui_test()
+#     # p.check_play_song_functionality()
+#     # p.remove_song_from_playlist_context_menu("Super_jazz", "Summer Love")
+#     # p.move_song_between_playlists(source_playlist="extra_heavy_metal", target_playlist="Super_jazz", artist_name="Soilwork", song_name="Strangler")
