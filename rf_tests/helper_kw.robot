@@ -23,10 +23,19 @@ Click homepage button
     click_homepage
 
 Check to see if all bottom console UI elements are present
-    ui_test_bottom_console
+    dt_player_ui_test
 
 Remove a song from a playlist
     remove_song_from_playlist_context_menu    ${playlist_nr_remove_song}    ${song_name_to_be_removed}
 
 Connect to the Spotify Desktop App
     connect
+
+Open Menu
+    click_menu_item    ${menu_item_name}
+
+Check toggle functionality
+    check_toggles_functionality     ${menu_item_name}    ${toggle_button_name}
+
+Run song functionality test
+    check_play_song_functionality

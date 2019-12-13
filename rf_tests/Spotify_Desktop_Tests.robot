@@ -29,4 +29,11 @@ Remove song via context menu
     Click homepage button
     Remove a song from a playlist
 
+Toggle functionality
+    When Open Menu
+    Then Check Toggle functionality
+
+Play song functionality
+    Run song functionality test
+
 *** Keywords ***

@@ -1,10 +1,8 @@
 from pywinauto import application
-from pywinauto.timings import wait_until as pywait
 from robot.api import logger as robologger
 import pywinauto
 import psutil
 
-# TODO: Separate class for helpers
 # TODO: Future: TimeIt => pentru benchamarking
 
 
@@ -156,39 +154,39 @@ class SpotifyDesktopApp:
     #     toggle_button.draw_outline()
     #     toggle_button.toggle()
 
-    def click_menu_item(self, menu_item_name):
-        flag = False
-        self.window_handle.wait('visible', timeout=5)
-        settings_menu_expand_button = self.settings_menu()
-        try:
-            settings_menu_expand_button.wait('visible', timeout=5)
-            settings_menu_expand_button.click_input()
-
-            settings_menu_item = self.window_handle.child_window(title=menu_item_name, control_type='MenuItem')
-            settings_menu_item.wait('visible', timeout=5)
-        except pywinauto.timings.TimeoutError as err:
-            robologger.console(f'Error <{err}> has occurred. Proceeding to click.')
-            settings_menu_expand_button.click_input()
-            settings_menu_item = self.window_handle.child_window(title='Settings', control_type='MenuItem')
-            settings_menu_item.wait('visible', timeout=5)
-        finally:
-            settings_menu_item.draw_outline()
-            settings_menu_item.click_input()
-
-        try:
-            settings_menu_expand_button.wait('visible', timeout=5)
-        except pywinauto.timings.TimeoutError:
-            flag = True
-        except pywinauto.findwindows.ElementNotFoundError:
-            flag = True
-
-        if flag is False:
-            try:
-                settings_menu_expand_button.wait('visible', timeout=5)
-                settings_menu_item = self.window_handle.child_window(title=menu_item_name, control_type='MenuItem')
-                settings_menu_item.click_input()
-            except pywinauto.findwindows.ElementNotFoundError:
-                pass
+    # def click_menu_item(self, menu_item_name):
+    #     flag = False
+    #     self.window_handle.wait('visible', timeout=5)
+    #     settings_menu_expand_button = self.settings_menu()
+    #     try:
+    #         settings_menu_expand_button.wait('visible', timeout=5)
+    #         settings_menu_expand_button.click_input()
+    #
+    #         settings_menu_item = self.window_handle.child_window(title=menu_item_name, control_type='MenuItem')
+    #         settings_menu_item.wait('visible', timeout=5)
+    #     except pywinauto.timings.TimeoutError as err:
+    #         robologger.console(f'Error <{err}> has occurred. Proceeding to click.')
+    #         settings_menu_expand_button.click_input()
+    #         settings_menu_item = self.window_handle.child_window(title='Settings', control_type='MenuItem')
+    #         settings_menu_item.wait('visible', timeout=5)
+    #     finally:
+    #         settings_menu_item.draw_outline()
+    #         settings_menu_item.click_input()
+    #
+    #     try:
+    #         settings_menu_expand_button.wait('visible', timeout=5)
+    #     except pywinauto.timings.TimeoutError:
+    #         flag = True
+    #     except pywinauto.findwindows.ElementNotFoundError:
+    #         flag = True
+    #
+    #     if flag is False:
+    #         try:
+    #             settings_menu_expand_button.wait('visible', timeout=5)
+    #             settings_menu_item = self.window_handle.child_window(title=menu_item_name, control_type='MenuItem')
+    #             settings_menu_item.click_input()
+    #         except pywinauto.findwindows.ElementNotFoundError:
+    #             pass
 
     # def check_toggles_functionality(self, menu_item_name, toggle_button_name):
     #     self.click_menu_item(menu_item_name)
@@ -202,13 +200,22 @@ class SpotifyDesktopApp:
     #         robologger.warn("The toggle function did not function!")
     #         return False
 
-    def close_application(self):
-        self.window_handle.close()
+    # def close_application(self):
+    #     """
+    #     :return: Closes the Spotify Desktop App
+    #     """
+    #     self.window_handle.close()
 
     def homepage_button(self):
+        """
+        :return: Homepage button object.
+        """
         return self.window_handle.child_window(title="Home")
 
     def filter_field(self):
+        """
+        :return: Returns the filter field object.
+        """
         try:
             self.window_handle.child_window(title="Filter", control_type="Edit").wait('visible', timeout=5)
             return self.window_handle.child_window(title="Filter", control_type="Edit")
@@ -218,13 +225,25 @@ class SpotifyDesktopApp:
             robologger.warn('Filter field not found.')
 
     def song_in_playlist(self, song_name):
+        """
+        :param song_name: Name of the song from within the
+        :return: Song object in the playlist
+        """
         return self.window_handle.child_window(auto_id="view-content", control_type="Group").child_window(title=song_name, found_index=0)
 
     def rc_context_menu(self, context_menu_name):
+        """
+        :param context_menu_name: Name of context menu
+        :return: Context menu object.
+        """
         self.window_handle.child_window(title=context_menu_name).wait("ready", timeout=10)
         return self.window_handle.child_window(title=context_menu_name)
 
     def artist_in_playlist(self, artist_name):
+        """
+        :param artist_name: Name of the artist from within the playlist
+        :return: Artist object
+        """
         return self.window_handle.child_window(auto_id="view-content", control_type="Group").child_window(title=artist_name, found_index=0)
 
     def main_middle_pane(self):
@@ -264,15 +283,15 @@ class SpotifyDesktopApp:
         """
         return self.window_handle.child_window(auto_id='profile-menu-toggle')
 
-    # def toggle_button(self, toggle_name):
-    #     """
-    #     :param toggle_name: Name of the toggle option
-    #     :return: Toggle button object
-    #     """
-    #     try:
-    #         return self.window_handle.child_window(control_type='CheckBox', title=toggle_name)
-    #     except pywinauto.ElementNotFoundError:
-    #         robologger.console("Element was not found.")
+    def toggle_button(self, toggle_name):
+        """
+        :param toggle_name: Name of the toggle option
+        :return: Toggle button object
+        """
+        try:
+            return self.window_handle.child_window(control_type='CheckBox', title=toggle_name)
+        except pywinauto.ElementNotFoundError:
+            robologger.console("Element was not found.")
 
     def search_field(self):
         """
@@ -307,53 +326,58 @@ class SpotifyDesktopApp:
         return self.window_handle.child_window(auto_id="view-content").children()[1].children()[0].children()[2]
 
     def friends_pane(self):
+        """
+        :return: Friends pane object
+        """
         return self.window_handle.child_window(auto_id='iframe-buddy-list')
 
     def table_of_songs(self):
+        """
+        :return: Table of songs that contains the songs of the playlist
+        """
         return self.window_handle.child_window(control_type="Table", found_index=0)
 
     def next_button(self):
-        try:
-            return self.window_handle.child_window(auto_id='player-button-next')
-        except pywinauto.findwindows.ElementNotFoundError:
-            return False
+        """
+        :return: Next button object.
+        """
+        return self.window_handle.child_window(auto_id='player-button-next')
 
     def previous_button(self):
-        try:
-            return self.window_handle.child_window(auto_id='player-button-previous')
-        except pywinauto.findwindows.ElementNotFoundError:
-            return False
+        """
+        :return: Previous button object
+        """
+        return self.window_handle.child_window(auto_id='player-button-previous')
 
     def shuffle_button(self):
-        try:
-            return self.window_handle.child_window(auto_id='player-button-shuffle')
-        except pywinauto.findwindows.ElementNotFoundError:
-            return False
+        """
+        :return: Shuffle button object.
+        """
+        return self.window_handle.child_window(auto_id='player-button-shuffle')
 
     def song_length(self):
-        try:
-            return self.window_handle.child_window(title="Player controls").children()[7]
-        except pywinauto.findwindows.ElementNotFoundError:
-            return False
+        """
+        :return: Song length object
+        """
+        return self.window_handle.child_window(title="Player controls").children()[7]
 
     def time_elapsed(self):
-        try:
-            return self.window_handle.child_window(title="Player controls").children()[6]
-        except pywinauto.findwindows.ElementNotFoundError:
-            return False
+        """
+        :return: Time elapsed object
+        """
+        return self.window_handle.child_window(title="Player controls").children()[6]
 
     def repeat_button(self):
-        try:
-            return self.window_handle.child_window(auto_id='player-button-repeat')
-        except pywinauto.findwindows.ElementNotFoundError:
-            return False
+        """
+        :return: Repeat button object
+        """
+        return self.window_handle.child_window(auto_id='player-button-repeat')
 
     def currently_playing(self):
-        try:
-            return self.window_handle.child_window(
-                    auto_id='now-playing-image-large')
-        except pywinauto.findwindows.ElementNotFoundError:
-            return False
+        """
+        :return: Currently playing object
+        """
+        return self.window_handle.child_window(auto_id='now-playing-image-large')
 
     # def check_play_song_functionality(self):
     #     initial_time = parse(self.time_elapsed().window_text()).time()
@@ -459,4 +483,3 @@ class SpotifyDesktopApp:
 #     # SpotifyDesktopApp().toggles()
 #     # SpotifyDesktopApp().find_playlist('extra_heavy_metal').click_input()
 #     # print(SpotifyDesktopApp().window_handle
-#     pass

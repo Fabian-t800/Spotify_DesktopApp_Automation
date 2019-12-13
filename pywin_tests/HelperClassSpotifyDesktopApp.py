@@ -38,7 +38,7 @@ class HelperClassSpotifyDesktopApp:
         """
         # TODO: Need to read all songs from the playlist
         # Needs scroll functionality implemented
-        # Until it gets to the recomended songs menu item
+        # Until it gets to the recommended songs menu item
         self.sda.friends_pane().wait('visible', timeout=10)
         self.sda.find_playlist(playlist=playlist).click_input()
         self.sda.table_of_songs().wait('visible', timeout=10)
@@ -105,9 +105,9 @@ class HelperClassSpotifyDesktopApp:
         :param direction: 1: Increase in volume, -1: Decrease in volume
         :return: Returns nothing.
         """
-        self.window_handle.child_window(title="Mute").wait("visible", timeout=7)
+        self.sda.mute_button().wait("visible", timeout=7)
         for i in range(0, int(nr_of_increments)):
-            self.window_handle.child_window(title="Mute").move_mouse_input(coords=(50, 20), absolute=False).wheel_mouse_input(coords=(50, 20), wheel_dist=int(direction))
+            self.sda.mute_button().move_mouse_input(coords=(50, 20), absolute=False).wheel_mouse_input(coords=(50, 20), wheel_dist=int(direction))
 
     def toggles(self, toggle_button_description):
         """
@@ -120,26 +120,34 @@ class HelperClassSpotifyDesktopApp:
         toggle_button.toggle()
 
     def click_menu_item(self, menu_item_name):
-        self.window_handle.wait('visible', timeout=5)
-        settings_menu_expand_button = self.settings_menu()
+        """
+        :param menu_item_name:  name of the menu item
+        :return:  Clicks on the menu item
+        """
+        self.sda.window_handle.wait('visible', timeout=5)
+        settings_menu_expand_button = self.sda.settings_menu()
         try:
             settings_menu_expand_button.wait('visible', timeout=5)
             settings_menu_expand_button.click_input()
             # Select settings menu item
-            settings_menu_item = self.window_handle.child_window(title=menu_item_name, control_type='MenuItem')
+            settings_menu_item = self.sda.window_handle.child_window(title=menu_item_name, control_type='MenuItem')
             settings_menu_item.wait('visible', timeout=5)
         except pywinauto.timings.TimeoutError as err:
             robologger.console(f'Error <{err}> has occurred. Proceeding to click.')
             settings_menu_expand_button.click_input()
-            settings_menu_item = self.window_handle.child_window(title='Settings', control_type='MenuItem')
+            settings_menu_item = self.sda.window_handle.child_window(title='Settings', control_type='MenuItem')
             settings_menu_item.wait('visible', timeout=5)
         finally:
             settings_menu_item.draw_outline()
             settings_menu_item.click_input()
 
     def check_toggles_functionality(self, menu_item_name, toggle_button_name):
-
-        self.sda.click_menu_item(menu_item_name)
+        """
+        :param menu_item_name: Name of the menu item that should be clicked
+        :param toggle_button_name: Name (description of the toggle item
+        :return:
+        """
+        self.click_menu_item(menu_item_name)
         current_state = self.sda.toggle_button(toggle_button_name).get_toggle_state()
         self.toggles(toggle_button_name)
         final_state = self.sda.toggle_button(toggle_button_name).get_toggle_state()
@@ -152,6 +160,9 @@ class HelperClassSpotifyDesktopApp:
             return False
 
     def check_play_song_functionality(self):
+        """
+        :return: Returns True if the song is played correctly
+        """
         initial_time = parse(self.sda.time_elapsed().window_text()).time()
         self.play_song(2)
         if initial_time < parse(self.sda.time_elapsed().window_text()).time():
@@ -162,6 +173,9 @@ class HelperClassSpotifyDesktopApp:
             return False
 
     def dt_player_ui_test(self):
+        """
+        :return:  If all UI elements are present, returns True
+        """
         error_flag = False
         try:
             assert (self.sda.song_length()), 'Song length not found.'
@@ -211,6 +225,7 @@ class HelperClassSpotifyDesktopApp:
 
         if error_flag is False:
             robologger.console("All ui elements are present.")
+            return True
         else:
             return False
 
@@ -224,14 +239,54 @@ class HelperClassSpotifyDesktopApp:
         time.sleep(time_to_play)
         self.sda.play_button().click_input()
 
+    def click_homepage(self):
+        """
+        :return: Clicks the homepage object.
+        """
+        self.sda.homepage_button().click_input()
+
+    def close_application(self):
+        """
+        :return: Closes the Spotify Desktop App
+        """
+        self.sda.window_handle.close()
+
+    def click_search_button(self):
+        self.sda.search_field_icon().click()
+
+    def wait_for_main_middle_pane_to_appear(self):
+        self.sda.main_middle_pane().wait("visible", timeout=20)
+
+    def clear_search_field(self):
+        self.sda.search_field().click_input(double=True)
+        self.sda.search_field().type_keys("{VK_BACK}")
+
+    def search_for(self, search_term):
+        self.sda.search_field().type_keys(search_term)
+
+    def search_res(self):
+        if (self.sda.search_result_field_one().window_text() and self.sda.search_result_field_two().window_text() and self.sda.search_result_field_three().window_text()) is not None:
+            return True
+        else:
+            raise AssertionError
+        # return self.sda.search_result_field_one().window_text(), self.sda.search_result_field_two().window_text(), self.sda.search_result_field_three().window_text()
+
+
 
 # if __name__ == '__main__':
 #     p = HelperClassSpotifyDesktopApp()
-#     # Passed tests:
-#     # p.search_for_something("Strangler")
-#     # p.check_toggles_functionality("Settings", "Allow playback of explicit-rated content.")
-#     # p.read_songs_from_playlist("Workout_songs")
-#     # p.dt_player_ui_test()
-#     # p.check_play_song_functionality()
-#     # p.remove_song_from_playlist_context_menu("Super_jazz", "Summer Love")
-#     # p.move_song_between_playlists(source_playlist="extra_heavy_metal", target_playlist="Super_jazz", artist_name="Soilwork", song_name="Strangler")
+#     p.click_homepage()
+#     p.click_search_button()
+#     p.wait_for_main_middle_pane_to_appear()
+#     p.clear_search_field()
+#     p.search_for("Strangler")
+#     print(p.search_results())
+    # Passed tests:
+    # p.search_for_something("Strangler")
+    # p.check_toggles_functionality("Settings", "Allow playback of explicit-rated content.")
+    # p.read_songs_from_playlist("Workout_songs")
+    # p.dt_player_ui_test()
+    # p.check_play_song_functionality()
+    # p.remove_song_from_playlist_context_menu("Super_jazz", "Summer Love")
+    # p.move_song_between_playlists(source_playlist="extra_heavy_metal", target_playlist="Super_jazz", artist_name="Soilwork", song_name="Strangler")
+    # p.check_toggles_functionality("Settings", "Allow playback of explicit-rated content.")
