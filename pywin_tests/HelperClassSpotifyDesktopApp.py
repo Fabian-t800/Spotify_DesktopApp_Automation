@@ -271,11 +271,103 @@ class HelperClassSpotifyDesktopApp:
             raise AssertionError
         # return self.sda.search_result_field_one().window_text(), self.sda.search_result_field_two().window_text(), self.sda.search_result_field_three().window_text()
 
+    def wait_for_mute_button(self):
+        self.sda.mute_button().wait("visible", timeout=7)
 
+    def volume_scroll(self, nr_of_increments, direction=1):
+        """
+        :param nr_of_increments: 1 increment means 10% change in volume
+        :param direction: 1: Increase in volume, -1: Decrease in volume
+        :return: Returns nothing.
+        """
+        for i in range(0, int(nr_of_increments)):
+            self.sda.mute_button().move_mouse_input(coords=(50, 20), absolute=False).wheel_mouse_input(coords=(50, 20),
+                                                                                                       wheel_dist=int(
+                                                                                                           direction))
+
+    def wait_for_friends_pane_to_be_visible(self):
+        self.sda.friends_pane().wait('visible', timeout=10)
+
+    def click_on_pl(self, playlist_name):
+        self.sda.find_playlist(playlist=playlist_name).click_input()
+
+    def read_songs(self):
+        song_list = [child.window_text()
+                      for song in self.sda.window_handle.child_window(control_type="Table", found_index=0).children(control_type="Custom")
+                      for index, child in enumerate(song.children())
+                      if index in [2, 3, 8]]
+        robologger.console(f"All songs in the list are: {song_list} \n")
+        return song_list
+
+    def validate_song_list(self, song_list):
+        if len(song_list) != 0:
+            return True
+        else:
+            raise AssertionError("There are no songs in your playlist!")
+
+    def move_song_between_playlistsv2(self, source_playlist, target_playlist, artist_name, song_name):
+        """
+        :param: source_playlist: The playlist from which you want to drag the song. Order number in the playlist.
+        :param: target_playlist: The playlist into which you want to drag the song. Order number in the playlist.
+        :param: song_name: Name of the song you want to take from the source playlist. Use entire and correct name.
+        :param: artist: Name of the artist that performs the song entered in song_name
+        :return: If the song is successfully moved between playlists, returns true.
+        """
+        t_playlist = self.sda.find_playlist(target_playlist)
+        s_playlist = self.sda.find_playlist(source_playlist)
+        s_playlist.click_input()
+        robologger.console("Source playlist clicked.")
+        self.sda.filter_field().wait("visible", timeout=4)
+        robologger.console("Playlist pane ready.")
+        song = self.sda.song_in_playlist(song_name)
+        artist = self.sda.artist_in_playlist(artist_name)
+        if song.window_text() == song_name and artist.window_text() == artist_name:
+            song.draw_outline()
+            t_playlist.draw_outline()
+            song.drag_mouse_input(dst=t_playlist.children()[0])
+        else:
+            robologger.console("Song or artist not in the source playlist!")
+
+    def validate_drag_and_drop(self, target_playlist, artist_name, song_name):
+        self.sda.find_playlist(target_playlist).click_input()
+        self.sda.filter_field().wait("visible", timeout=4)
+        song = self.sda.song_in_playlist(song_name)
+        artist = self.sda.artist_in_playlist(artist_name)
+        if song.window_text() == song_name and artist.window_text() == artist_name:
+            robologger.console("The drag and drop functionality has worked.")
+        else:
+            robologger.console("The drag and drop functionality failed.")
+            raise AssertionError(f"Expection that the {target_playlist} should contain the {song_name}, by the artist {artist_name}. \n It was not found")
+
+    def wait_for_filter_field(self):
+        self.sda.filter_field().wait("ready", timeout=7)
+
+    def right_click_on_song_in_pl(self, song_name):
+        self.sda.song_in_playlist(song_name).click_input(button='right')
+
+    def wait_for_context_menu_remove_song(self):
+        self.sda.rc_context_menu("Remove from this Playlist").wait('visible', timeout=7)
+
+    def click_remove_song(self):
+        self.sda.rc_context_menu("Remove from this Playlist").click_input()
+
+    def validate_remove_song(self, song_name):
+        song = self.sda.song_in_playlist(song_name)
+        try:
+            song.window_text() == song_name
+        except pywinauto.ElementNotFoundError:
+            robologger.console("The song was successfully removed from the playlist.")
+        else:
+            raise AssertionError(f"Expected outcome: {song_name} was removed from the playlist. Instead {song_name} is still present.")
 
 # if __name__ == '__main__':
-#     p = HelperClassSpotifyDesktopApp()
-#     p.click_homepage()
+
+    # p = HelperClassSpotifyDesktopApp()
+    # p.click_homepage()
+    # p.wait_for_main_middle_pane_to_appear()
+    # p.click_on_pl("extra_heavy_metal")
+    # results = p.read_songs()
+    # print(p.validate_song_list(results))
 #     p.click_search_button()
 #     p.wait_for_main_middle_pane_to_appear()
 #     p.clear_search_field()

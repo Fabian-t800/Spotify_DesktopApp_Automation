@@ -9,9 +9,16 @@ import psutil
 class SpotifyDesktopApp:
 
     def __init__(self):
-        self.app = None
         self.window_handle = None
+        self.app = None
         self.connect()
+        # for proc in psutil.process_iter():
+        #     if proc.name() == "Spotify.exe":
+        #         self.connect()
+        #         break
+        #     else:
+
+
 
     def connect(self):
         """
