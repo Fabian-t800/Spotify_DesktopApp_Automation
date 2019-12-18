@@ -8,7 +8,12 @@ import pywinauto
 class HelperClassSpotifyDesktopApp:
 
     def __init__(self):
-        self.sda = SDA.SpotifyDesktopApp()
+
+        # self.sda = SDA.SpotifyDesktopApp()
+        self.handle = None
+        # self.sda.connect()
+
+        robologger.warn("Helper Class is being instantiated")
 
     def search_for_something(self, search_for):
         """
@@ -53,6 +58,11 @@ class HelperClassSpotifyDesktopApp:
                       if index in [2, 3, 8]]
         robologger.console(f"All songs in the list are: {songs_list} \n")
         return songs_list
+
+    def connect_to(self):
+        self.sda = SDA.SpotifyDesktopApp()
+        self.handle = self.sda.connect()
+        self.sda.set_handle(self.handle)
 
     def move_song_between_playlists(self, source_playlist, target_playlist, artist_name, song_name):
         """
@@ -398,6 +408,7 @@ class HelperClassSpotifyDesktopApp:
             self.sda.alert_pane().click_input()
         except pywinauto.ElementNotFoundError:
             pass
+
 
 
 # if __name__ == '__main__':

@@ -3,20 +3,15 @@ from robot.api import logger as robologger
 import pywinauto
 import psutil
 
-# TODO: Future: TimeIt => pentru benchamarking
-
 
 class SpotifyDesktopApp:
 
-    def __init__(self):
-        self.window_handle = None
+    def __init__(self, window_handle=None):
+        # self.window_handle = None
         self.app = None
-        self.connect()
-        # for proc in psutil.process_iter():
-        #     if proc.name() == "Spotify.exe":
-        #         self.connect()
-        #         break
-        #     else:
+        self.window_handle = window_handle
+        # if self.connect() is False:
+        #     self.connect()
 
     def connect(self):
         """
@@ -29,9 +24,11 @@ class SpotifyDesktopApp:
             self.app.connect(path="Spotify")
             self.window_handle = self.app.top_window()
             self.window_handle.maximize()
+            robologger.warn("Process Not found Branch was tried.")
         except pywinauto.uia_defines.NoPatternInterfaceError as err:
             robologger.console(f"The <{err}> error has occurred trying to connect.")
             self.connect()
+            robologger.warn("NoPatternInterfaceError branch was used.")
         else:
             spotify_pids = []
             for proc in psutil.process_iter():
@@ -40,6 +37,7 @@ class SpotifyDesktopApp:
             for spotify_pid in spotify_pids:
                 try:
                     self.app = pywinauto.application.Application(backend='uia').connect(process=spotify_pid)
+                    robologger.warn("Connect to a process branch has been chosen.")
                     try:
                         self.app.windows()[0].maximize()
                     except IndexError:
@@ -52,6 +50,9 @@ class SpotifyDesktopApp:
             self.app.top_window().wait('visible', timeout=20, retry_interval=1)
         except RuntimeError:
             robologger.console("Application is already running. Window handle ready.")
+
+    def set_handle(self, handle):
+        self.window_handle = handle
 
     # def search_for_something(self, search_for):
     #     """
@@ -210,7 +211,6 @@ class SpotifyDesktopApp:
     #     :return: Closes the Spotify Desktop App
     #     """
     #     self.window_handle.close()
-
     def homepage_button(self):
         """
         :return: Homepage button object.

@@ -1,8 +1,7 @@
 *** Settings ***
-Suite Setup
+Suite Setup       Connect to App
 Resource          elements.robot
 Resource          helper_kw2.robot
-Library           ../pywin_tests/HelperClassSpotifyDesktopApp.py
 
 *** Test Cases ***
 Search Feature Test

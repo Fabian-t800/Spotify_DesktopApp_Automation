@@ -1,5 +1,4 @@
 *** Settings ***
-Library           ../pywin_tests/SpotifyDesktopApp.py
 Resource          elements.robot
 Library           ../pywin_tests/HelperClassSpotifyDesktopApp.py
 
@@ -96,7 +95,7 @@ Read the time after the song was played
 Read init toggle state
     [Arguments]    ${toggle_button_name}
     ${initial_toggle_state}=    read_initial_toggle_state    ${toggle_button_name}
-    Set Global Variable     ${initial_toggle_state}
+    Set Global Variable    ${initial_toggle_state}
 
 Click the toggle button
     toggles    ${toggle_button_name}
@@ -110,3 +109,6 @@ Validate toggle functionality
 
 Close Alert Panel
     close_alert_pane
+
+Connect to App
+    connect_to

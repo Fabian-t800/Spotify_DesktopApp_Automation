@@ -1,0 +1,7 @@
+# Set loglevel to Debug if tests start to fail
+--timestampoutputs
+--loglevel Debug
+--log spotifytestlogs.html
+#--outputdir D:\\QA_Automation_Desktop_Spotify\\reports
+# --tagstatinclude Smoke
+--suite Spotify_Desktop_Tests_-_BDD
