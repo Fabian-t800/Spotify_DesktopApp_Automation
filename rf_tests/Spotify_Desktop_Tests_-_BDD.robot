@@ -39,3 +39,22 @@ Remove song from playlist test
     When Wait for the context menu to remove song
     When Click on remove song
     Then Validate if song was removed    ${song_name_to_be_removed}
+
+Play Song Functionality
+    Given Click on homepage
+    And Wait for play button to appear
+    When Read time elapsed
+    When Click on the play button
+    And Wait for time to pass    ${wait_time}
+    When Click on the play button
+    When Read the time after the song was played
+    Then Validate the time elapsed after    ${time_before}    ${time_after}
+
+Toggle functionality test
+    Given Click on Homepage
+    When Click Menu item    ${menu_item_name}
+    When Read init toggle state    ${toggle_button_name}
+    When Click the toggle button
+    When Read fin toggle state
+    Then Validate toggle functionality
+    [Teardown]    Close Alert Panel

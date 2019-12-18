@@ -18,8 +18,6 @@ class SpotifyDesktopApp:
         #         break
         #     else:
 
-
-
     def connect(self):
         """
         :return: Connects to or starts an instance of the Spotify desktop app.
@@ -385,6 +383,10 @@ class SpotifyDesktopApp:
         :return: Currently playing object
         """
         return self.window_handle.child_window(auto_id='now-playing-image-large')
+
+    def alert_pane(self):
+        self.window_handle.child_window(auto_id="view-message-bar").wait('visible', timeout=7)
+        return self.window_handle.child_window(auto_id="view-message-bar").children()[4]
 
     # def check_play_song_functionality(self):
     #     initial_time = parse(self.time_elapsed().window_text()).time()

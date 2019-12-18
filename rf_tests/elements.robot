@@ -11,3 +11,4 @@ ${playlist_nr_remove_song}    Super_jazz    # Name of the playlist from which yo
 ${song_name_to_be_removed}    Strangler    # Name of the song you want to remove from the playlist
 ${menu_item_name}    Settings    # Name of the menu item you want to have click
 ${toggle_button_name}    Allow playback of explicit-rated content.    # The name (full description) of the toggle button
+${wait_time}      2    # Time to wait for a song to play

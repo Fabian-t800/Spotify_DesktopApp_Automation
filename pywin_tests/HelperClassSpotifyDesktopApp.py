@@ -360,10 +360,59 @@ class HelperClassSpotifyDesktopApp:
         else:
             raise AssertionError(f"Expected outcome: {song_name} was removed from the playlist. Instead {song_name} is still present.")
 
-# if __name__ == '__main__':
+    def wait_for_play_button(self):
+        self.sda.play_button().wait('visible', timeout=5)
 
-    # p = HelperClassSpotifyDesktopApp()
+    def click_play_button(self):
+        self.sda.play_button().click_input()
+
+    def read_time_before(self):
+        return parse(self.sda.time_elapsed().window_text()).time()
+
+    def read_time_after(self):
+        return parse(self.sda.time_elapsed().window_text()).time()
+
+    def wait_time(self, time_to_wait):
+        time.sleep(int(time_to_wait))
+
+    def validate_play_song(self, intial_time, final_time):
+        if intial_time < final_time:
+            robologger.console("The song was successfully played.")
+        else:
+            raise AssertionError(f"The expected result was {intial_time} < {final_time}.")
+
+    def read_initial_toggle_state(self, toggle_button_name):
+        return self.sda.toggle_button(toggle_button_name).get_toggle_state()
+
+    def read_final_toggle_state(self, toggle_button_name):
+        return self.sda.toggle_button(toggle_button_name).get_toggle_state()
+
+    def validate_toggle_function(self, initial_toggle_state, final_toggle_state):
+        if initial_toggle_state != final_toggle_state:
+            robologger.console("Toggle functionality works.")
+        else:
+            raise AssertionError(f" The expected result would be that the initial toggle state should be different to the final toggle state.\n The current situation is that the initial state is {initial_toggle_state} and the final state was {final_toggle_state}.")
+
+    def close_alert_pane(self):
+        try:
+            self.sda.alert_pane().click_input()
+        except pywinauto.ElementNotFoundError:
+            pass
+
+
+# if __name__ == '__main__':
+#
+#     p = HelperClassSpotifyDesktopApp()
+#     p.close_alert_pane()
+
     # p.click_homepage()
+    # p.wait_for_play_button()
+    # before = p.read_time_after()
+    # p.click_play_button()
+    # p.wait_time(2)
+    # p.click_play_button()
+    # after = p.read_time_after()
+    # p.validate_play_song(before, after)
     # p.wait_for_main_middle_pane_to_appear()
     # p.click_on_pl("extra_heavy_metal")
     # results = p.read_songs()

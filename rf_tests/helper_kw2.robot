@@ -70,3 +70,43 @@ Click on remove song
 Validate if song was removed
     [Arguments]    ${song_name}
     validate_remove_song    ${song_name}
+
+Wait for play button to appear
+    wait_for_play_button
+
+Click on the play button
+    click_play_button
+
+Read time elapsed
+    ${time_before}    read_time_before
+    Set Global Variable    ${time_before}
+
+Wait for time to pass
+    [Arguments]    ${wait_time}
+    wait_time    ${wait_time}
+
+Validate the time elapsed after
+    [Arguments]    ${time_before}    ${time_after}
+    validate_play_song    ${time_before}    ${time_after}
+
+Read the time after the song was played
+    ${time_after}    read_time_after
+    Set Global Variable    ${time_after}
+
+Read init toggle state
+    [Arguments]    ${toggle_button_name}
+    ${initial_toggle_state}=    read_initial_toggle_state    ${toggle_button_name}
+    Set Global Variable     ${initial_toggle_state}
+
+Click the toggle button
+    toggles    ${toggle_button_name}
+
+Read fin toggle state
+    ${final_toggle_state}    read_final_toggle_state    ${toggle_button_name}
+    Set Global Variable    ${final_toggle_state}
+
+Validate toggle functionality
+    validate_toggle_function    ${initial_toggle_state}    ${final_toggle_state}
+
+Close Alert Panel
+    close_alert_pane
