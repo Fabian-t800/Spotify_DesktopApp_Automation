@@ -8,12 +8,7 @@ import pywinauto
 class HelperClassSpotifyDesktopApp:
 
     def __init__(self):
-
-        # self.sda = SDA.SpotifyDesktopApp()
-        self.handle = None
-        # self.sda.connect()
-
-        robologger.warn("Helper Class is being instantiated")
+        self.sda = SDA.SpotifyDesktopApp()
 
     def search_for_something(self, search_for):
         """
