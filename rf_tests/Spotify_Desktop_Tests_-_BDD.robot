@@ -1,5 +1,5 @@
 *** Settings ***
-Suite Setup       Connect to App
+#Suite Setup       Connect to App
 Resource          elements.robot
 Resource          helper_kw2.robot
 

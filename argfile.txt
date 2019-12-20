@@ -1,7 +1,10 @@
 # Set loglevel to Debug if tests start to fail
+#--suite "Spotify_Desktop_Tests_-_BDD.robot"
+--test Mouse Volume Scroll Test
+--test Search Feature Test
 --timestampoutputs
 --loglevel Debug
 --log spotifytestlogs.html
-#--outputdir D:\\QA_Automation_Desktop_Spotify\\reports
+--outputdir D:\QA_Automation_Desktop_Spotify\reports
 # --tagstatinclude Smoke
 --suite Spotify_Desktop_Tests_-_BDD

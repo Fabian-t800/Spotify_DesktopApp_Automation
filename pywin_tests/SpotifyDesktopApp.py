@@ -1,3 +1,4 @@
+# from pywin_tests import ConnectToSpotify as CTS
 from pywinauto import application
 from robot.api import logger as robologger
 import pywinauto
@@ -6,12 +7,10 @@ import psutil
 
 class SpotifyDesktopApp:
 
-    def __init__(self, window_handle=None):
-        # self.window_handle = None
+    def __init__(self):
         self.app = None
-        self.window_handle = window_handle
-        # if self.connect() is False:
-        #     self.connect()
+        self.window_handle = None
+        self.connect()
 
     def connect(self):
         """
@@ -25,6 +24,7 @@ class SpotifyDesktopApp:
             self.window_handle = self.app.top_window()
             self.window_handle.maximize()
             robologger.warn("Process Not found Branch was tried.")
+            return self.window_handle
         except pywinauto.uia_defines.NoPatternInterfaceError as err:
             robologger.console(f"The <{err}> error has occurred trying to connect.")
             self.connect()
@@ -43,6 +43,7 @@ class SpotifyDesktopApp:
                     except IndexError:
                         continue
                     self.window_handle = self.app.top_window()
+                    return self.window_handle
                 except RuntimeError as err:
                     robologger.console(f'Error: <{err}> was yielded for PID: {spotify_pid}')
                     continue
@@ -51,8 +52,8 @@ class SpotifyDesktopApp:
         except RuntimeError:
             robologger.console("Application is already running. Window handle ready.")
 
-    def set_handle(self, handle):
-        self.window_handle = handle
+    # def set_handle(self, handle):
+    #     self.window_handle = handle
 
     # def search_for_something(self, search_for):
     #     """
@@ -462,8 +463,10 @@ class SpotifyDesktopApp:
     #     self.play_button().click_input()
 
 
-# if __name__ == '__main__':
-#
+if __name__ == '__main__':
+
+    p = SpotifyDesktopApp().connect()
+
 #     # SpotifyDesktopApp().dt_player_ui_test()
 #     # print(SpotifyDesktopApp().currently_playing().window_text())
 #     s = SpotifyDesktopApp()
