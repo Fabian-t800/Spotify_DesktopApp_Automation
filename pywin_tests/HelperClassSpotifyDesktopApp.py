@@ -8,6 +8,7 @@ import pywinauto
 class HelperClassSpotifyDesktopApp:
 
     def __init__(self):
+
         self.sda = SDA.SpotifyDesktopApp()
 
     def search_for_something(self, search_for):
@@ -273,8 +274,7 @@ class HelperClassSpotifyDesktopApp:
         if (self.sda.search_result_field_one().window_text() and self.sda.search_result_field_two().window_text() and self.sda.search_result_field_three().window_text()) is not None:
             return True
         else:
-            raise AssertionError
-        # return self.sda.search_result_field_one().window_text(), self.sda.search_result_field_two().window_text(), self.sda.search_result_field_three().window_text()
+            raise AssertionError()
 
     def wait_for_mute_button(self):
         self.sda.mute_button().wait("visible", timeout=7)

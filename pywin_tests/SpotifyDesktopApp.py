@@ -5,12 +5,23 @@ import pywinauto
 import psutil
 
 
+def singleton(cls):
+    instances = {}
+
+    def _singleton():
+      if cls not in instances:
+          instances[cls] = cls()
+      return instances[cls]
+    return _singleton
+
+
+@singleton
 class SpotifyDesktopApp:
 
     def __init__(self):
         self.app = None
-        self.window_handle = None
-        self.connect()
+        self.wh = None
+        self.window_handle = self.connect()
 
     def connect(self):
         """
@@ -21,10 +32,10 @@ class SpotifyDesktopApp:
         except pywinauto.application.ProcessNotFoundError:
             self.app = application.Application(backend='uia', allow_magic_lookup=True).start("Spotify")
             self.app.connect(path="Spotify")
-            self.window_handle = self.app.top_window()
-            self.window_handle.maximize()
+            self.wh = self.app.top_window()
+            self.wh.maximize()
             robologger.warn("Process Not found Branch was tried.")
-            return self.window_handle
+            return self.wh
         except pywinauto.uia_defines.NoPatternInterfaceError as err:
             robologger.console(f"The <{err}> error has occurred trying to connect.")
             self.connect()
@@ -42,8 +53,8 @@ class SpotifyDesktopApp:
                         self.app.windows()[0].maximize()
                     except IndexError:
                         continue
-                    self.window_handle = self.app.top_window()
-                    return self.window_handle
+                    self.wh = self.app.top_window()
+                    return self.wh
                 except RuntimeError as err:
                     robologger.console(f'Error: <{err}> was yielded for PID: {spotify_pid}')
                     continue
@@ -228,6 +239,7 @@ class SpotifyDesktopApp:
         except pywinauto.ElementNotFoundError:
             robologger.warn('Filter field not found.')
         except TimeoutError:
+            raise TimeoutError
             robologger.warn('Filter field not found.')
 
     def song_in_playlist(self, song_name):
